@@ -29,7 +29,7 @@ public class EmailVerification {
     private LocalDateTime expiryDate; // 인증 만료시간
 
     @OneToOne
-    @JoinColumn(name = "ev_user_id", referencedColumnName = "ev_user_id")
+    @JoinColumn(name = "event_user_id", referencedColumnName = "ev_user_id")
     private EventUser eventUser;
 
 }
