@@ -1,5 +1,6 @@
 package com.study.event.api.event.service;
 
+import com.study.event.api.event.entity.EventUser;
 import com.study.event.api.event.repository.EventUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,12 @@ public class EventUserService {
 
     // 이메일 중복확인 처리
     public boolean checkEmailDuplicate(String email) {
+
+//        EventUser user = EventUser.builder()
+//                .email("abc@def.com" + (int)(Math.random()*10))
+//                .build();
+//        eventUserRepository.save(user);
+
         boolean exists = eventUserRepository.existsByEmail(email);
         log.info("Checking email {} is duplicated: {}", email, exists);
         return exists;
