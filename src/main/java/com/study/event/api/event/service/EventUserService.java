@@ -50,7 +50,12 @@ public class EventUserService {
                 .build();
 
         EventUser savedUser = eventUserRepository.save(newEventUser);
+        // 2, 3번
+        generateAndSendCode(email, savedUser);
 
+    }
+
+    private void generateAndSendCode(String email, EventUser eventUser) {
         // 2. 이메일 인증 코드 발송
         String code = sendVerificationEmail(email);
 
@@ -58,11 +63,10 @@ public class EventUserService {
         EmailVerification verification = EmailVerification.builder()
                 .verificationCode(code) // 인증코드
                 .expiryDate(LocalDateTime.now().plusMinutes(5)) // 만료시간 (5분 뒤)
-                .eventUser(savedUser) // FK id만 주지 않고 객체 통째로 전달
+                .eventUser(eventUser) // FK id만 주지 않고 객체 통째로 전달
                 .build();
 
         emailVerificationRepository.save(verification);
-
     }
 
 
@@ -107,4 +111,44 @@ public class EventUserService {
         return String.valueOf((int)(Math.random()*9000 + 1000));
     }
 
+    // 인증코드 체크
+    public boolean isMatchCode(String email, String code) {
+
+        // 이메일을 통해 회원정보를 탐색
+        EventUser eventUser = eventUserRepository.findByEmail(email).orElse(null);
+        if(eventUser != null) {
+            // 인증코드 존재여부 탐색
+            EmailVerification ev = emailVerificationRepository.findByEventUser(eventUser).orElse(null);
+
+            // 인증코드가 있고 만료시간이 지나지 않았고 코드번호가 일치할 경우
+            if (
+                    ev != null
+                    && ev.getExpiryDate().isAfter(LocalDateTime.now()) // 만료시간이 지금보다 이후?
+                    && code.equals(ev.getVerificationCode())
+            ) {
+                // 이메일 인증여부 true로 수정
+                eventUser.setEmailVerified(true);
+                eventUserRepository.save(eventUser); // UPDATE (INSERT 가 아니라)
+
+                // 인증코드 데이터베이스에서 삭제
+                emailVerificationRepository.delete(ev); // 영속성 삭제 deleteById도 가능
+
+                return true; // 인증이 성공하면 일회성이므로 굳이 데이터베이스에 남길 이유가 없으므로 삭제
+            } else { // 인증코드가 틀렸거나 만료된 경우
+                // 인증코드 재발송
+                // 원래 인증 코드 삭제
+                emailVerificationRepository.delete(ev);
+
+                // 새인증코드 발급 이메일 재전송  --> processSignUp 2,3번을 분리 필요
+                // 데이터베이스에 새 인증코드 저장
+                generateAndSendCode(email, eventUser);
+
+                return false;
+            }
+
+        }
+
+
+        return false;
+    }
 }
