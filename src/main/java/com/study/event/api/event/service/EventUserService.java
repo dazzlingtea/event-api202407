@@ -40,13 +40,24 @@ public class EventUserService {
     // 이메일 중복확인 처리
     public boolean checkEmailDuplicate(String email) {
 
-        boolean exists = eventUserRepository.existsByEmail(email);
-        log.info("Checking email {} is duplicated: {}", email, exists);
+//        boolean exists = eventUserRepository.existsByEmail(email);
+//        log.info("Checking email {} is duplicated: {}", email, exists);
+
+        Optional<EventUser> byEmail = eventUserRepository.findByEmail(email);
+        log.info("Checking email {} is duplicated: {}", email, byEmail);
+        if(byEmail.isEmpty()) {
+            processSignUp(email);
+        } else {
+            generateAndSendCode(email, byEmail.get());
+            return false;
+        }
 
         // 일련의 후속 처리 (데이터베이스 처리, 이메일 보내는 것...)
-        if(!exists) processSignUp(email);
+//        if(!exists) processSignUp(email);
 
-        return exists;
+
+//        return exists;
+        return byEmail.isPresent();
     }
 
     public void processSignUp(String email) {
