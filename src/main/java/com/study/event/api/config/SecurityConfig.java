@@ -44,7 +44,7 @@ public class SecurityConfig {
 //                .antMatchers(HttpMethod.POST, "/events/**").hasAnyRole("VIP", "ADMIN")
 
                 // 나머지 요청은 전부 인증(로그인) 후 진행해라
-                .anyRequest().authenticated() // 인가 설정 off
+                .anyRequest().authenticated() // 인가 설정 on
 
         ;
 
