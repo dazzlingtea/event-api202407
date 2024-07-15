@@ -4,6 +4,7 @@ import com.study.event.api.auth.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -30,14 +31,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             // 토큰정보는 요청헤더에 포함되어 전송됨
             String token = parseBearerToken(request);
 
+            log.info("토큰 위조 검사 필터 작동!");
             if(token != null) {
                 // 토큰 위조 검사
                 tokenProvider.validateAndGetTokenInfo(token);
             }
 
         } catch (Exception e) {
-
+            log.warn("토큰이 위조되었습니다.");
+            e.printStackTrace();
         }
+        // 필터체인에 내가 만든 커스텀 필터를 실행하도록 명령
+        // 필터체인: 필터는 여러개임, 우리가 체인에 걸어놓은 필터를 (등록은 security config)
+        // 실행명령
+        filterChain.doFilter(request, response);
     }
 
     private String parseBearerToken(HttpServletRequest request) {
@@ -52,7 +59,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String bearerToken = request.getHeader("Authorization");
 
         // 토큰에 붙어있는 Bearer라는 문자열을 제거
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+        // StringUtils.hasText(bearerToken) 빈문자열도 아니고 null도 아니어야 함
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7); // 7번부터 끝까지
         }
         return null;
