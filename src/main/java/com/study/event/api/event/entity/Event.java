@@ -39,6 +39,7 @@ public class Event {
     @CreationTimestamp
     private LocalDateTime createdAt; // 이벤트 등록 날짜
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ev_user_id") // 동일하므로 references ... 설정 필요 없음
     private EventUser eventUser;
