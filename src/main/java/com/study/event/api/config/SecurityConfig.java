@@ -3,6 +3,8 @@ package com.study.event.api.config;
 import com.study.event.api.auth.filter.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -17,6 +19,8 @@ import org.springframework.web.filter.CorsFilter;
 // 권한처리
 // OAuth2 - SNS로그인
 @EnableWebSecurity
+// 컨트롤러에서 사전, 사후에 권한정보를 캐치해서 막을건지 설정
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -43,6 +47,13 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests() // 요청 별로 인가 설정
+
+                // /events/* -> 뒤에 딱 하나만 (없거나 2개 이상은 해당 안됨)
+                // /events/** -> 뒤에 여러개
+                .antMatchers(HttpMethod.DELETE,"/events/*").hasAuthority("ADMIN")
+//                .antMatchers(HttpMethod.DELETE,"/events/*").hasAnyAuthority("ADMIN", "", "")
+
+                .antMatchers(HttpMethod.PUT,"/auth/promote").hasAuthority("COMMON") // 인증에 추가로 인가까지 받는게 더 강한 검증
 
                 // 아래의 URL 요청은 로그인 없이 모두 허용
 //                .antMatchers("/**").permitAll() // 인가 설정 off
