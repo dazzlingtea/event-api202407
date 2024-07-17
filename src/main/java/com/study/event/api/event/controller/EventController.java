@@ -52,7 +52,14 @@ public class EventController {
             // JwtAuthFilter에서 시큐리티에 등록한 데이터
             @AuthenticationPrincipal TokenUserInfo userInfo,
             @RequestBody EventSaveDto dto) {
-        eventService.saveEvent(dto, userInfo.getUserId());
+
+        try {
+            eventService.saveEvent(dto, userInfo.getUserId());
+        } catch (IllegalStateException e) {
+            log.warn(e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage()); // 권한 에러
+        }
+
         return ResponseEntity.ok().body("event saved!");
     }
 
