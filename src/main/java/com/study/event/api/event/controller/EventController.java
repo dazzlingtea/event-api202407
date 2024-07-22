@@ -55,12 +55,11 @@ public class EventController {
 
         try {
             eventService.saveEvent(dto, userInfo.getUserId());
+            return ResponseEntity.ok().body("event saved!");
         } catch (IllegalStateException e) {
             log.warn(e.getMessage());
             return ResponseEntity.status(401).body(e.getMessage()); // 권한 에러
         }
-
-        return ResponseEntity.ok().body("event saved!");
     }
 
     // 단일 조회 요청

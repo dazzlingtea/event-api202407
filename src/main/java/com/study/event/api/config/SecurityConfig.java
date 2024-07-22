@@ -57,7 +57,8 @@ public class SecurityConfig {
 
                 // 아래의 URL 요청은 로그인 없이 모두 허용
 //                .antMatchers("/**").permitAll() // 인가 설정 off
-                .antMatchers("/","/auth/**").permitAll()  // 인증 안받아도 됨
+//                .antMatchers("/","/auth/**").permitAll()  // 인증 안받아도 됨
+                .antMatchers("/","/auth/**", "/file/upload").permitAll()  // 인증 안받아도 됨
 //                .antMatchers(HttpMethod.POST, "/events/**").hasAnyRole("VIP", "ADMIN")
 
                 // 나머지 요청은 전부 인증(로그인) 후 진행해라
