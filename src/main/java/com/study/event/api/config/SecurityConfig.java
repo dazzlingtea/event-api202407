@@ -56,8 +56,6 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.PUT,"/auth/promote").hasAuthority("COMMON") // 인증에 추가로 인가까지 받는게 더 강한 검증
 
                 // 아래의 URL 요청은 로그인 없이 모두 허용
-//                .antMatchers("/**").permitAll() // 인가 설정 off
-//                .antMatchers("/","/auth/**").permitAll()  // 인증 안받아도 됨
                 .antMatchers("/","/auth/**", "/file/**").permitAll()  // 인증 안받아도 됨
 //                .antMatchers(HttpMethod.POST, "/events/**").hasAnyRole("VIP", "ADMIN")
 
